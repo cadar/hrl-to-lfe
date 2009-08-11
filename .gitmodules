@@ -1,3 +1,0 @@
-[submodule "lib/nitrogen"]
-	path = lib/nitrogen
-	url = git://github.com/rklophaus/nitrogen.git
