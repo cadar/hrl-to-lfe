@@ -33,8 +33,7 @@ print_tran(AST) ->
 print(AST) -> [lfe(C) || C<-AST].
 
 lfe({attribute, _Line, file, _RecordName}) ->
-    io:format(";; 1. git clone git://github.com/cadar/hrl-to-lfe.git ; cd hrl-to-lfe~n"),
-    io:format(";; 2. erlc h2l.erl ; cat wf.inc | erl -noshell -s h2l pipe > wf.lfe~n~n");
+    io:format(";; Generated with git://github.com/cadar/hrl-to-lfe.git");
 
 lfe({attribute, _Line, record, RecordData}) ->
     {Name, Recs} = RecordData,
