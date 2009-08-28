@@ -1,6 +1,14 @@
 -module(h2l).
 -export([pipe/0]).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%   Program to convert nitrogen hrl file to lfe.
+%%
+%%   usage: cat wf.inc | erl -noshell -s h2l pipe 
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 pipe() -> pipe([]).
 
 pipe(Res) ->
@@ -26,14 +34,15 @@ save(Name, Data) ->
     io:fwrite(F,"~s~n",[Data]),
     file:close(F).
 
-print_tran(AST) ->
-    io:format("~p~n",[AST]).
-
-
 print(AST) -> [lfe(C) || C<-AST].
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%  ast to lfe 
+%%
+
 lfe({attribute, _Line, file, _RecordName}) ->
-    io:format(";; Generated with git://github.com/cadar/hrl-to-lfe.git");
+    io:format(";; Generated with git://github.com/cadar/hrl-to-lfe.git~n~n");
 
 lfe({attribute, _Line, record, RecordData}) ->
     {Name, Recs} = RecordData,
@@ -42,11 +51,18 @@ lfe({attribute, _Line, record, RecordData}) ->
     io:format(")~n");
 
 lfe({eof, _}) ->
-    io:format("~n;; done~n");
+    {{Y,M,D},{H,MM,S}}=erlang:universaltime(),
+    io:format("~n;; done -"),
+    io:format(" ~B-~2.10.0B-~2.10.0B",[Y,M,D]),
+    io:format(" ~2.10.0B:~2.10.0B:~2.10.0B~n",[H,MM,S]);
 
 lfe(All) ->     
     error_logger:error_msg("Untransformed record: ~p~n",[All]).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%  record type 
+%%
 
 rec({record_field, _, AtomData}) ->
     first_field(AtomData);
@@ -67,15 +83,17 @@ rec({record_field, _, AtomData1, AtomData2, AtomData3}) ->
 rec(All) ->
     error_logger:error_msg("Untransformed rec option: ~p~n",[All]).
 
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%  print field type
+%%
 
 first_field({atom, _, FieldName}) -> io:format(" ~p",[FieldName]).
 
 field({atom, _, FieldName}) -> io:format(" '~p",[FieldName]);
 field({string, _, String}) -> io:format(" '\"~s\"",[String]);
 field({integer, _, NR}) -> io:format(" ~p",[NR]);
-field({cons, _, First, Rest }) -> field(First);
+field({cons, _, First, _Rest }) -> field(First);
 field({nil, _ }) -> io:format(" '()");
 
 field({tuple, _, List }) ->
