@@ -1,5 +1,3 @@
--ifndef(wf_inc).
--define(wf_inc, ok).
 
 %%% LOGGING %%%
 -define(PRINT(Var), error_logger:info_msg("DEBUG: ~p:~p - ~p: ~p~n", [?MODULE, ?LINE, ??Var, Var])).
@@ -109,6 +107,3 @@
 -record(confirm_password, {?VALIDATOR_BASE(validator_confirm_password), password}).
 -record(custom, {?VALIDATOR_BASE(validator_custom), function, tag }).
 -record(js_custom, {?VALIDATOR_BASE(validator_js_custom), function, args="{}" }).
-
-
--endif.

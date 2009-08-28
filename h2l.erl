@@ -13,7 +13,6 @@ process(Data) ->
     Name = generate_filename(),
     save(Name,Data),
     {ok, AST} = epp:parse_file(Name,[],[]),
-    print_tran(AST),
     print(AST),
     file:delete(Name),
     init:stop().
@@ -41,7 +40,7 @@ lfe({attribute, _Line, record, RecordData}) ->
     {Name, Recs} = RecordData,
     io:format("(defrecord ~p",[Name]),
     [rec(C) || C<-Recs],
-    io:format(")~n~n");
+    io:format(")~n");
 
 lfe({eof, _}) ->
     io:format("~n;; done~n");
@@ -69,42 +68,24 @@ rec({record_field, _, AtomData1, AtomData2, AtomData3}) ->
 rec(All) ->
     error_logger:error_msg("Untransformed rec option: ~p~n",[All]).
 
-first_field({atom, _, FieldName}) ->
-    io:format(" ~p",[FieldName]).
 
-field({atom, _, FieldName}) ->
-    io:format(" '~p",[FieldName]);
 
-field({string, _, FieldName}) ->
-    io:format(" '~s",[to_str(FieldName)]);
 
-field({cons, _, First, Rest }) ->
-    field(First);
+first_field({atom, _, FieldName}) -> io:format(" ~p",[FieldName]).
+
+field({atom, _, FieldName}) -> io:format(" '~p",[FieldName]);
+field({string, _, String}) -> io:format(" '\"~s\"",[String]);
+field({integer, _, NR}) -> io:format(" ~p",[NR]);
+field({cons, _, First, Rest }) -> field(First);
+field({nil, _ }) -> io:format(" '()");
+
 field({tuple, _, List }) ->
     io:format(" '("),
     first_field(hd(List)),
     [field(C) || C<-tl(List)],
     io:format(")");
 
-field({nil, _ }) -> 0;
-
 field(All) ->
     error_logger:error_msg("Untransformed field: ~p~n",[All]).
-
-
-to_str([]) ->
-     '""';
-to_str(All) ->
-    All.
-
-
-to_sexp([]) ->
-     '()';
-to_sexp(All) ->
-    All.
-
-% (defrecord elementbase (module 'undefined)      id actions (show_if 'true) (class '"") (style '""))
-% (defrecord link (module 'element_link)          id actions (show_if 'true) (class '"") (style '"") (text '"") (body '"") (html_encode 'true) (url '"javascript:") postback)
-% (defrecord datepicker_textbox  (module 'element_datepicker_textbox)          id actions (show_if 'true) (class '"") (style '"") (text '"") next (html_encode 'true) (validators '()) (options '"{dateFormat:'yy-mm-dd'}"))
 
  
