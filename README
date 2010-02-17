@@ -2,3 +2,10 @@ git clone git://github.com/cadar/hrl-to-lfe.git
 cd hrl-to-lfe
 erlc h2l.erl
 cat ~/elib/nitrogen/include/wf.inc | erl -noshell -s h2l pipe > wf.lfe
+
+LFE
+---
+No clean compile with the LFE version yet. Piping io do not work at the moment. Use the Erlang version.
+
+erl -pa ~/lithium/lib/lfe/ebin -noshell  -eval 'lfe_comp:file("h2l.lfe").' -s erlang halt
+cat wf.inc | erl  -pa ~/lithium/lib/lfe/ebin -noshell -noshell -s h2l pipe
